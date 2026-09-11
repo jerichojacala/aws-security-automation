@@ -4,6 +4,7 @@
 *.tfstate.*
 crash.log
 crash.*.log
+plan
 
 # Terraform variable files
 *.tfvars
@@ -44,3 +45,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+#Keys
+test-user_accessKeys.csv
+
