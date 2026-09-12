@@ -1,3 +1,4 @@
+# set the terraform version to use
 terraform {
   required_providers {
     aws = {
@@ -7,15 +8,21 @@ terraform {
   }
 }
 
+# define the cloud provider
 provider "aws" {
   region = "us-east-1"
 }
 
+# create a bucket to use as a vulnerability
+# we set force destroy flag to allow for the bucket to
+# be destroyed if non-empty
 resource "aws_s3_bucket" "security_demo" {
   bucket_prefix = "jjacala-security-demo-"
   force_destroy = true
 }
 
+# aws has a public access block as a safeguard while configuring
+# for this exercise, we turn it off to test our own infrastructure
 resource "aws_s3_bucket_public_access_block" "security_demo" {
   bucket = aws_s3_bucket.security_demo.id
 
@@ -25,8 +32,9 @@ resource "aws_s3_bucket_public_access_block" "security_demo" {
   restrict_public_buckets = false
 }
 
+# set the bucket to be publicly READABLE
 resource "aws_s3_bucket_policy" "security_demo" {
-  bucket = aws_s3_bucket.security_demo.id
+  bucket     = aws_s3_bucket.security_demo.id
   depends_on = [aws_s3_bucket_public_access_block.security_demo]
 
   policy = jsonencode({
