@@ -51,12 +51,12 @@ resource "aws_s3_bucket" "config_delivery" {
 resource "aws_s3_bucket_policy" "config_delivery_policy" {
   bucket = aws_s3_bucket.config_delivery.id
 
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "AWSConfigBucketPermissionsCheck"
+        Sid = "AWSConfigBucketPermissionsCheck"
         # grant the config permission to get the bucket acl
         Effect = "Allow"
         Principal = {
@@ -66,7 +66,7 @@ resource "aws_s3_bucket_policy" "config_delivery_policy" {
         Resource = aws_s3_bucket.config_delivery.arn
       },
       {
-        Sid    = "AWSConfigBucketDelivery"
+        Sid = "AWSConfigBucketDelivery"
         # grant the config permission to write logs to the bucket
         Effect = "Allow"
         Principal = {
@@ -106,3 +106,26 @@ resource "aws_config_configuration_recorder_status" "security" {
 }
 
 # todo: build config rule
+
+resource "aws_config_config_rule" "s3_public_read" {
+  name        = "s3-public-read-prohibited"
+  description = "Detects when an s3 bucket has public read access"
+
+  # here we add a rule managed by aws
+  source {
+    owner             = "AWS"
+    source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
+  }
+
+  # to be safe we define the scope - this rule only applies to s3 buckets
+  scope {
+    compliance_resource_types = [
+      "AWS::S3::Bucket"
+    ]
+  }
+
+  # this rule depends on the config recorder being turned on already
+  depends_on = [
+    aws_config_configuration_recorder_status.security
+  ]
+}
