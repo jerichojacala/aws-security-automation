@@ -1,5 +1,16 @@
 # aws-security-automation
 
+## How It Works
+
+Using Terraform, I turned off the AWS public access block. When configuring access control lists for resources, it's possible that one might accidentally make sensitive resources publicly accessible. In order to protect against this, AWS blocks ACLs that allow for public access. I disabled this in order to make a proof-of-concept of automated monitoring. Upon deploying the architecture, a chain reaction starts as follows:
+
+1. Disable AWS public access block
+1. Create an intentionally publicly accessible s3 bucket
+1. A config recorder detects the change in state, audits the system for compliance with config rules, and determines that the bucket is non-compliant
+1. An EventBridge rule detects the compliance change
+1. A Lambda function targetted by the EventBridge rule is triggered
+1. The Lambda function creates a warning log
+
 ## Problems I ran into (to talk about in interviews)
 
 1. Race conditions
