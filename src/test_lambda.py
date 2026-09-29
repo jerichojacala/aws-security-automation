@@ -1,6 +1,5 @@
-from unittest.mock import Mock
+from lambda_function import log_event
 
-from lambda_function import lambda_handler
 
 def sample_event(compliance="NON_COMPLIANT"):
     return {
@@ -52,3 +51,21 @@ def sample_event(compliance="NON_COMPLIANT"):
             }
         }
     }
+
+def test_log_event_flags_noncompliance():
+    result = log_event(sample_event("NON_COMPLIANT"))
+    assert result == False
+
+def test_log_event_flags_compliance():
+    result = log_event(sample_event("COMPLIANT"))
+    assert result == True
+
+def test_log_event_flags_nonsense():
+    result = log_event(sample_event("NONSENSE_STATUS"))
+    assert result == False
+
+if __name__ == "__main__":
+    test_log_event_flags_noncompliance()
+    test_log_event_flags_compliance()
+    test_log_event_flags_nonsense()
+    print("Test passed successfully!")

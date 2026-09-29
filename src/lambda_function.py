@@ -18,18 +18,30 @@ def log_event(event):
     config_rule_name = detail.get("configRuleName")
     resource_id = detail.get("resourceId")
 
+    status = False
+
     if compliance_type.lower() == "non_compliant":
         logger.warning(
-                f"WARNING: Bucket access is public! Context: {context}, Event: {event}",
+                f"WARNING: Bucket access is public! Event: {event}",
                 extra={
                     "event" : event
                 },
         )
-    else:
+    elif compliance_type.lower() == "compliant":
         logger.info(
-            f"Resource {resource_id} is compliant with rule {config_rule_name}. Context: {context}, Event: {event}",
+            f"Resource {resource_id} is compliant with rule {config_rule_name}. Event: {event}",
             extra={
                 "event" : event
             }
         )
+        status = True
+    else:
+        logger.warning(
+            f"WARNING: Bucket access is indeterminate! Event: {event}",
+                extra={
+                    "event" : event
+                },
+        )
+
+    return status
     
