@@ -27,6 +27,39 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# define policy document for public access block operations
+
+data "aws_iam_policy_document" "lambda_s3_block_doc" {
+  statement {
+    sid = "AllowLambdaS3PublicAccessBlock"
+    effect = "Allow"
+
+    actions = [
+      "s3:PutBucketPublicAccessBlock",
+      "s3:GetBucketPublicAccessBlock"
+    ]
+
+    # we have to be careful giving it access to every bucket
+    # however, our use case necessitates the capacity to remediate every bucket
+    resources = ["*"]
+  }
+}
+
+
+# create the policy for public access block operations
+
+resource "aws_iam_policy" "lambda_s3_block" {
+  name = "lambda-s3-public-access-block-operation"
+  policy = data.aws_iam_policy_document.lambda_s3_block_doc.json
+}
+
+# give the role the ability to re-enable public access block
+
+resource "aws_iam_role_policy_attachment" "lambda_remediate_block" {
+  role = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_s3_block.arn
+}
+
 # use terraform data feature to zip the lambda source code
 
 data "archive_file" "lambda_zip" {

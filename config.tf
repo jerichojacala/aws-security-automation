@@ -47,7 +47,7 @@ resource "aws_s3_bucket" "config_delivery" {
   force_destroy = true
 }
 
-# TODO: assign permissions for the config recorder to check bucket acl and write
+# assign permissions for the config recorder to check bucket acl and write
 resource "aws_s3_bucket_policy" "config_delivery_policy" {
   bucket = aws_s3_bucket.config_delivery.id
 
